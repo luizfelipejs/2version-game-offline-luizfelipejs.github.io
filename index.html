@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>offline game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        #screen {
+            border: 1px solid #cece;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            image-rendering: -moz-crisp-edges;
+            width: 400px;
+            height: 400px;
+        }
+
+        #score {
+            list-style: none;
+        }
+        #best {
+            margin-left: 2.4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="interface">
+        <canvas id="screen" width="50" height="50"> </canvas>
+        <ul id="score"></ul>
+        <div id="best"></div>
+    </div>
+    <script type="module"> 
+        import createGame from './scripts/Game.js'
+        import renderScreen from './scripts/renderScreen.js'
+        import createKeyboardListnner from './scripts/keyboardListnner.js'
+        
+        const screen = document.getElementById("screen");
+        const context = screen.getContext("2d");
+        const score = document.getElementById("score")
+        const bestscore = document.getElementById("best")
+
+        const game = createGame();
+        const {state} = game;
+
+        const renderScore = () => {
+            const elements = state.players.map(player => `<li>Player: ${player.ID} score: ${player.score}</li>`)
+            const scores = state.players.map(player => player.score)
+            const bestScore = Math.max(...scores);
+
+            score.innerHTML = elements;
+            bestscore.innerText = `Melhor pontuação ${bestScore}`
+        }
+
+        const botStart = () => {
+            game.createBotBrain(state.players[1], 1)
+            game.createBotBrain(state.players[2], 2)
+        }
+
+        const keyboardListnner = createKeyboardListnner();
+        keyboardListnner.subscribe(game.movePlayer)
+
+        setInterval(game.addFruit, 1000)
+        setInterval(renderScore, 100)
+        setInterval(botStart, 100)
+
+        renderScreen(game.state, context)
+    </script>
+</body>
+
+</html>
